@@ -19,9 +19,12 @@ namespace Learn_code.Areas.Identity.Pages.Account
     {
         private readonly UserManager<AppUser> _userManager;
 
-        public ConfirmEmailModel(UserManager<AppUser> userManager)
+        private readonly SignInManager<AppUser> _signInManager;
+
+        public ConfirmEmailModel(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
         }
 
         /// <summary>
@@ -40,13 +43,24 @@ namespace Learn_code.Areas.Identity.Pages.Account
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{userId}'.");
+                return NotFound($"Không tìm thấy User có ID = '{userId}'.");
             }
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ConfirmEmailAsync(user, code);
-            StatusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
-            return Page();
+            StatusMessage = result.Succeeded ? "Email đã được xác thực." : "Lỗi xác thực email.";
+
+            if (result.Succeeded)
+            {
+
+                await _signInManager.SignInAsync(user, isPersistent: false);
+                return RedirectToPage("/Index");
+            }
+            else
+            {
+                return Content("Lỗi xác thực email.");
+            }
+            // return Page();
         }
     }
 }
