@@ -1,0 +1,64 @@
+@page
+@model Learn_code.Pages_Blog.IndexModel
+
+@{
+    ViewData["Title"] = "Danh sách bài viết";
+    int i = 0;
+}
+
+@{ 
+    var pagingModel = new NHT.Helper.PagingModel();
+    pagingModel.currentPage = Model.currentPage;
+    pagingModel.countPages = Model.countPages;
+    pagingModel.generateUrl = (int? p) => Url.Page("/Blog/Index", new { p = p});
+}
+
+<partial name="_PagingXTL" model="@pagingModel" />
+
+<h1>Danh sách bài viết</h1>
+
+<form class="my-5" method="get" asp-page="./Index">
+    <label>Tìm kiếm</label>
+    <input type="text" name="searchString" value="" />
+    <button type="submit">Tìm</button>
+</form>
+
+<p>
+    <a class="btn btn-primary" asp-page="Create">Tạo bài viết mới</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Article[0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Article[0].Created)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Article) {
+        <tr>
+            <td>
+                @(++i)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.Id">Chỉnh sửa</a> |
+                <a asp-page="./Details" asp-route-id="@item.Id">Chi tiết</a> |
+                <a asp-page="./Delete" asp-route-id="@item.Id">Xoá</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
